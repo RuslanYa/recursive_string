@@ -40,10 +40,10 @@ preg_match_all('~<a [^<>]*href=[\'"]([^\'"]+)[\'"][^<>]*>~si',$html, $matches);*
 echo '<br>';
 // print_r($str ='{Please,|Просто|Если сможете,} сделайте так, чтобы это{удивительное|крутое|простое|важное|бесполезное} тестовое предложение {изменялось{быстро|мгновенно|оперативно|правильно} случайным образом|менялось каждый раз}.');
 
-($str1 ='Важное {Попробуйте,|Просто|Если сможете,} сделайте так, чтобы это {удивительное|крутое|простое|важное|бесполезное} тестовое предложение {изменялось {быстро|изменялось мгновенно|изменялось оперативно|изменялось правильно} случайным образом|менялось каждый раз}.');
+print_r($str ='Важное {Попробуйте,|Просто|Если сможете,} сделайте так, чтобы это {удивительное|крутое|простое|важное|бесполезное} тестовое предложение {изменялось {быстро| мгновенно|оперативно|правильно} случайным образом|менялось каждый раз}.');
 
 
-print_r($str = 'Lorem ipsum {helicopter|bisical|{dolor|sit amet,|consectetur}} adipisicing elit. {Molestiae,| distinctio} fugit perferendis maxime quaerat perspiciatis fugiat, quod ea. {Accusantium}, {soluta}tyyu.');
+($str1 = 'Lorem ipsum {helicopter|bisical|{dolor|sit amet,|consectetur}} adipisicing elit. {Molestiae,| distinctio} fugit perferendis maxime quaerat perspiciatis fugiat, quod ea. {Accusantium}, {soluta}tyyu.');
 
 // $arr_str = str_split($str);
 // var_dump($arr_str);
@@ -64,9 +64,8 @@ function divString($interString)
 			// echo '<br><br>';
 			// echo $interString;
 			// echo '<br>mark $interString<br>';
-	global $count;
-	global $exitString_arr;
-	global $len;
+	$count = 0;
+	$exitString_arr =[];
 	
 	$i = 0;
 	while ($i < strlen($interString)) {
@@ -79,9 +78,8 @@ function divString($interString)
 		}
 
 		if ($char == '|' and isset($exitString)){
-			$exitString_arr[$count][] = $exitString;
-			$exitString = ' ';
-			
+			$exitString_arr[] = $exitString;
+			$exitString = ' ';			
 		}
 
 
@@ -94,8 +92,8 @@ function divString($interString)
 			// echo $i;
 
 			$exitString .= ' ';
-			$exitString_arr[$count][] = $exitString;
-			return $exitString_arr[$count];
+			$exitString_arr[] = $exitString;
+			return $exitString_arr;
 		}
 
 		if ($char == '{') {
@@ -104,18 +102,16 @@ function divString($interString)
 			// echo $exitString;
 			// echo '<br>mark *{* $exitString<br>';
 			$exitString.= ' ';
-			$exitString_arr[$count][] = $exitString;
+			$exitString_arr[] = $exitString;
 			$exitString = '';
 			$subString = substr($interString, $i+1);
 
 
 			$count++;
-			divString($subString);
+			$exitString_arr[] = divString($subString);
 			$count++;
 
 			$i = search_size($exitString_arr, $len);
-			
-
 			
 			// echo $i;
 			// die();
@@ -124,9 +120,9 @@ function divString($interString)
 
 		}
 			if ($i == strlen($interString)-1) {
-				echo $exitString;
-				$exitString_arr[$count][] = $exitString;
-				var_dump($exitString_arr);
+				// echo $exitString;
+				$exitString_arr[] = $exitString;
+				// var_dump($exitString_arr);
 				$exitString = ' ';
 				
 		}
@@ -136,15 +132,10 @@ function divString($interString)
 		// echo $i;
 	}
 
-	return $exitString;
+	return $exitString_arr;
 	
 
 }
-echo '<br>';
-echo '<br>';
-echo divString($str);
-echo '<br>';
-// echo $count;
 
 function search_size($data)
 {
@@ -159,5 +150,7 @@ function search_size($data)
 	}
 	return $len;
 }
+
+var_dump(divString($str));
 
 ?>
