@@ -40,10 +40,10 @@ preg_match_all('~<a [^<>]*href=[\'"]([^\'"]+)[\'"][^<>]*>~si',$html, $matches);*
 echo '<br>';
 // print_r($str ='{Please,|Просто|Если сможете,} сделайте так, чтобы это{удивительное|крутое|простое|важное|бесполезное} тестовое предложение {изменялось{быстро|мгновенно|оперативно|правильно} случайным образом|менялось каждый раз}.');
 
-print_r($str ='Важное {Попробуйте,|Просто|Если сможете,} сделайте так, чтобы это {удивительное|крутое|простое|важное|бесполезное} тестовое предложение {изменялось быстро|изменялось мгновенно|изменялось оперативно|изменялось правильно}');
+($str1 ='Важное {Попробуйте,|Просто|Если сможете,} сделайте так, чтобы это {удивительное|крутое|простое|важное|бесполезное} тестовое предложение {изменялось {быстро|изменялось мгновенно|изменялось оперативно|изменялось правильно} случайным образом|менялось каждый раз}.');
 
 
-($str1 = 'Lorem ipsum {dolor sit amet, |consectetur} adipisicing elit. {Molestiae, distinctio} fugit perferendis maxime quaerat perspiciatis fugiat, quod ea. Accusantium, soluta!');
+print_r($str = 'Lorem ipsum {helicopter|bisical|{dolor|sit amet,|consectetur}} adipisicing elit. {Molestiae,| distinctio} fugit perferendis maxime quaerat perspiciatis fugiat, quod ea. {Accusantium}, {soluta}tyyu.');
 
 // $arr_str = str_split($str);
 // var_dump($arr_str);
@@ -65,22 +65,26 @@ function divString($interString)
 			// echo $interString;
 			// echo '<br>mark $interString<br>';
 	global $count;
+	global $exitString_arr;
+	global $len;
+	
 	$i = 0;
 	while ($i < strlen($interString)) {
 
 		$char = substr($interString, $i, 1);
-		
-		if ($char == '!') {
-			$exitString .= $char;
-			
-		}
+
+
 		if ($char!='{' and $char!='}' and $char!='|'){
 			 $exitString .= $char;
 		}
 
 		if ($char == '|' and isset($exitString)){
-			$exitString .= ' ';
+			$exitString_arr[$count][] = $exitString;
+			$exitString = ' ';
+			
 		}
+
+
 
 		if ($char == '}') {
 			
@@ -90,39 +94,70 @@ function divString($interString)
 			// echo $i;
 
 			$exitString .= ' ';
-			return $exitString;
+			$exitString_arr[$count][] = $exitString;
+			return $exitString_arr[$count];
 		}
 
 		if ($char == '{') {
+
 			// echo '<br><br>';
 			// echo $exitString;
 			// echo '<br>mark *{* $exitString<br>';
-			$exitString .= ' '; 
+			$exitString.= ' ';
+			$exitString_arr[$count][] = $exitString;
+			$exitString = '';
 			$subString = substr($interString, $i+1);
 
 
 			$count++;
-			$exitString .= divString($subString);
-			$i = strlen($exitString);
+			divString($subString);
+			$count++;
+
+			$i = search_size($exitString_arr, $len);
+			
+
+			
+			// echo $i;
+			// die();
 
 
+
+		}
+			if ($i == strlen($interString)-1) {
+				echo $exitString;
+				$exitString_arr[$count][] = $exitString;
+				var_dump($exitString_arr);
+				$exitString = ' ';
+				
 		}
 
 		$i++;
 		// echo '<br>';
 		// echo $i;
 	}
+
 	return $exitString;
 	
-
-	 
 
 }
 echo '<br>';
 echo '<br>';
 echo divString($str);
 echo '<br>';
- echo $count;
+// echo $count;
 
+function search_size($data)
+{
+	$len = 0;
+	foreach ($data as $value) {
+
+		if (is_array($value)) {
+			$len += search_size($value);
+		}else{
+			$len += strlen($value);
+		}
+	}
+	return $len;
+}
 
 ?>
