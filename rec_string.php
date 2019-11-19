@@ -1,156 +1,201 @@
 <?php
 
-ini_set('xdebug.var_display_max_depth', 5);
-ini_set('xdebug.var_display_max_children', 256);
-ini_set('xdebug.var_display_max_data', 10240);
-ini_set("allow_url_fopen", true);
+// ini_set('xdebug.var_display_max_depth', 5);
+// ini_set('xdebug.var_display_max_children', 256);
+// ini_set('xdebug.var_display_max_data', 10240);
+// ini_set("allow_url_fopen", true);
 
 
-
-
-// 	// $str = file_get_contents('http://theory.phphtml.net');
-// 	// var_dump($str);
-
-// $str = file_get_contents('index.html');
-
-// 	preg_match_all('#<title>(.+?)</title>#su', $str, $res);
-// 	var_dump($res);
-
-// 	preg_match_all('#<head>(.+?)</head>#su', $str, $res);
-// 	var_dump($res);
-
-// 	preg_match_all('#<body.*>(.+?)</body>#su', $str, $res);
-// 	var_dump($res);
-
-// 	echo '<br>';
-// 		//Выведет '! e', а ожидалось '! qw x e':
-// 	echo preg_replace('#a.+x#', '!', 'a23e4x qw x e'); 
-
-
-/*	$html=file_get_contents ('http://itlifemsk.ru');
-$url='itlifemsk.ru';
-$vnut=[];
-$vnech=[];
-preg_match_all('~<a [^<>]*href=[\'"]([^\'"]+)[\'"][^<>]*>~si',$html, $matches);*/
-// foreach ($matches[1] as $val) {
-//     if (!preg_match("~^[^=]+://~", $val) || preg_match("~^[^://]+://(www\.)?".$url."~i", $val)) { $vnut[]=$val; }
-//     else $vnech[]=$val;
-// }
-
-echo '<br>';
-// print_r($str ='{Please,|Просто|Если сможете,} сделайте так, чтобы это{удивительное|крутое|простое|важное|бесполезное} тестовое предложение {изменялось{быстро|мгновенно|оперативно|правильно} случайным образом|менялось каждый раз}.');
-
-print_r($str ='Важное {Попробуйте,|Просто|Если сможете,} сделайте так, чтобы это {удивительное|крутое|простое|важное|бесполезное} тестовое предложение {изменялось {быстро| мгновенно|оперативно|правильно} случайным образом|менялось каждый раз}.');
-
-
-($str1 = 'Lorem ipsum {helicopter|bisical|{dolor|sit amet,|consectetur}} adipisicing elit. {Molestiae,| distinctio} fugit perferendis maxime quaerat perspiciatis fugiat, quod ea. {Accusantium}, {soluta}tyyu.');
-
-// $arr_str = str_split($str);
-// var_dump($arr_str);
-
-
-// $charset = mb_detect_encoding($str);
-
-// $str = iconv($charset, "UTF-8", $str);
+print_r($str ='{Попробуйте|Просто|Если сможете,} сделайте так, чтобы это {удивительное|крутое|простое|важное|бесполезное} тестовое предложение {изменялось {быстро| мгновенно|оперативно|правильно} случайным образом|менялось каждый раз}.');
 
 
 
 
 
-$count = 0;
-
-function divString($interString)
+function divString($interString, $semafor = 0)
 {
-			// echo '<br><br>';
-			// echo $interString;
-			// echo '<br>mark $interString<br>';
-	$count = 0;
-	$exitString_arr =[];
-	
-	$i = 0;
-	while ($i < strlen($interString)) {
 
-		$char = substr($interString, $i, 1);
+	 $exit_arr =[];
+	 $sign_arr =[];
+	 $br_count_arr=[];
+	 $br = 'breaked';
+	 $sl = 'select';
+	 $nr = 'normal';
+	 $br_count = 0;
+	$i = 0;
+	while ($i++ < strlen($interString)) {
+
+		$char = mb_substr($interString, $i, 1);
 
 
 		if ($char!='{' and $char!='}' and $char!='|'){
-			 $exitString .= $char;
+			 $exitString .= $char;}
+
+
+		if ($semafor == '{' and $char == '|'){
+			$exit_arr[] = $exitString; $exitString = ''; $semafor = '|'; $sign_arr[] = $sl; continue;
+		}
+		if ($semafor == '}' and $char == '|'){
+			$exit_arr[] = $exitString; $exitString = ''; $semafor = '|'; $sign_arr[] = $br;
+			$br_count_arr[sizeof($sign_arr)-1]= $br_count--; continue;
+		}
+		if ($semafor == '|' and $char == '|'){
+			$exit_arr[] = $exitString; $exitString = ''; $semafor = '|'; $sign_arr[] = $sl; continue;
 		}
 
-		if ($char == '|' and isset($exitString)){
-			$exitString_arr[] = $exitString;
-			$exitString = ' ';			
+
+
+		if ($semafor == '{' and $char == '}') {			
+			$exit_arr[] = $exitString; $exitString = ''; $semafor = '}'; $sign_arr[] = $nr;continue;
+		}
+		if ($semafor == '}' and $char == '}') {			
+			$exit_arr[] = $exitString; $exitString = ''; $semafor = '}'; $sign_arr[] = $br;
+			$br_count_arr[sizeof($sign_arr)-1]=$br_count--;continue;
+		}
+		if ($semafor == '|' and $char == '}') {			
+			$exit_arr[] = $exitString; $exitString = ''; $semafor = '}'; $sign_arr[] = $sl;continue;
 		}
 
 
 
-		if ($char == '}') {
-			
-			// echo '<br><br>';
-			// echo $exitString;
-			// echo '<br>mark *}* $exitString<br>';
-			// echo $i;
 
-			$exitString .= ' ';
-			$exitString_arr[] = $exitString;
-			return $exitString_arr;
+		if ($semafor == '{' and $char == '{') {
+			$exit_arr[] = $exitString; $exitString = ''; $semafor = '{'; $sign_arr[] = $br;
+			$br_count_arr[sizeof($sign_arr)-1]=++$br_count;continue;
 		}
-
-		if ($char == '{') {
-
-			// echo '<br><br>';
-			// echo $exitString;
-			// echo '<br>mark *{* $exitString<br>';
-			$exitString.= ' ';
-			$exitString_arr[] = $exitString;
-			$exitString = '';
-			$subString = substr($interString, $i+1);
-
-
-			$count++;
-			$exitString_arr[] = divString($subString);
-			$count++;
-
-			$i = search_size($exitString_arr, $len);
-			
-			// echo $i;
-			// die();
-
-
-
+		if ($semafor == '}' and $char == '{') {
+			$exit_arr[] = $exitString; $exitString = ''; $semafor = '{'; $sign_arr[] = $nr;continue;
 		}
-			if ($i == strlen($interString)-1) {
-				// echo $exitString;
-				$exitString_arr[] = $exitString;
-				// var_dump($exitString_arr);
-				$exitString = ' ';
-				
+		if ($semafor == '|' and $char == '{') {
+			$exit_arr[] = $exitString; $exitString = ''; $semafor = '{'; $sign_arr[] = $br;
+			$br_count_arr[sizeof($sign_arr)-1]=++$br_count;continue;
 		}
-
-		$i++;
-		// echo '<br>';
-		// echo $i;
+		
 	}
 
-	return $exitString_arr;
+	$exit[] = $exit_arr;
+	$exit[] = $sign_arr;
+	$exit[] = $br_count_arr;
 	
-
+	return $exit;
 }
 
-function search_size($data)
-{
-	$len = 0;
-	foreach ($data as $value) {
 
-		if (is_array($value)) {
-			$len += search_size($value);
+function select($exitString, $sign_arr, $br_count_arr){
+
+	for ($i = 0; $i<sizeof($sign_arr); $i++){
+		if ($sign_arr[$i] == 'select'){
+			$temp_arr[] = $i;	
 		}else{
-			$len += strlen($value);
+			$exitString2[] = $exitString[$i];
+			$sign_arr2[] = $sign_arr[$i];
+			if ($sign_arr[$i] == 'breaked') {
+				$br_count_arr2[sizeof($sign_arr2)-1]= $br_count_arr[$i];
+			}
+
 		}
+
+
+		if ($sign_arr[$i] == 'select' and $sign_arr[$i+1] != 'select'){
+
+
+			$select_num = rand($temp_arr[0],$temp_arr[sizeof($temp_arr)-1]);
+			$temp_arr = [];
+
+			// echo $exitString[$select_num];
+			// var_dump($exitString);
+			$exitString2[] = $exitString[$select_num];	
+			$sign_arr2[] = 'select';	
+		}
+
+
 	}
-	return $len;
+
+	$exit[]= $exitString2;
+	$exit[]= $sign_arr2;
+	$exit[]=$br_count_arr2;
+
+
+
+	return $exit;
+
 }
 
-var_dump(divString($str));
+
+function breaked($exitString, $sign_arr, $br_count_arr){
+
+	for ($i = 0; $i<sizeof($sign_arr); $i++){
+		if ($sign_arr[$i] != 'breaked'){
+
+			$exitString3[] = $exitString[$i];
+			$sign_arr3[] = $sign_arr[$i];
+			continue;
+						
+		}
+
+		if ($sign_arr[$i] == 'breaked' and $sign_arr[$i+1] == 'select' and $sign_arr[$i+2] == 'breaked' and $br_count_arr[$i] == $br_count_arr[$i+2]){
+
+			$exitString3[] = $exitString[$i].' '.$exitString[$i+1].' '.$exitString[$i+2];	
+			$sign_arr3[] = 'select';	
+			$i++;
+			$i++;
+			
+
+			}else{
+					if ($sign_arr[$i] == 'breaked') {
+
+						$exitString3[] = $exitString[$i];
+						$sign_arr3[] = $sign_arr[$i];
+						$br_count_arr2[sizeof($sign_arr3)-1]= $br_count_arr[$i];
+						var_dump($br_count_arr[$i]);
+
+					}
+
+				}
+	}
+	$exit[] = $exitString3;
+	$exit[] = $sign_arr3;
+	$exit[] = $br_count_arr2;
+
+	return $exit;
+
+}
+
+
+function build_string($data)
+{
+	$result = '';
+	foreach ($data as  $value) {
+		$result.=$value;
+	}
+	return $result;
+}
+
+
+
+
+function string_from_mask($str){
+
+	$exit = divString($str);
+	build_string($exit[1]);
+
+	while (strpos(build_string($exit[1]), 'selectselect') != false or strpos(build_string($exit[1]), 'breaked')) {
+	  	$exit = select($exit[0], $exit[1], $exit[2]);
+		$exit = breaked($exit[0], $exit[1], $exit[2]);
+		
+	  	} 
+	var_dump($exit);
+	echo(build_string($exit[0]));  
+
+}
+
+string_from_mask($str);
+
+
+
+
+
+
+
 
 ?>
